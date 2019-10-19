@@ -1,0 +1,47 @@
+div.form-sm{
+	max-width: 400px; 
+	border: solid 1px #1C6BA7; 
+	padding: 5px; 
+	margin: 0px auto;
+}
+
+div.form-md{
+	max-width: 600px; 
+	border: solid 1px #1C6BA7; 
+	padding: 5px; 
+	margin: 0px auto;
+}
+
+div.form-lg{
+	max-width: 1000px; 
+	border: solid 1px #1C6BA7; 
+	padding: 5px; 
+	margin: 0px auto;
+}
+
+div.form-sm legend, div.form-md legend, div.form-lg legend{
+	background-color: #39435C;
+	color:#fff;
+	font-size: 14px;
+	padding: 3px;
+}
+
+div.form-sm h3, div.form-md h3, div.form-lg h3{
+	background-color: #CCC5A6;
+	padding: 5px;
+	margin: 0px 0px 5px 0px;
+	border-bottom: 1px #1C6BA7 solid;
+	font-size: 16px;
+	color: #000;
+
+}
+
+div.form-md legend{
+	background-color: #565B68;
+}
+div.form-sm,div.form-md,div.form-lg{
+	background-color: #fff;
+}
+table thead{
+	background-color: #D6D8E0;
+}
