@@ -1,3 +1,9 @@
 # codeigniter-newsletter
 
-Initial JS file upload not yet completed. Please do not use it in production pupose.
+Just upload the files and folders to local server
+
+create a database and import sample sql database.
+
+configure database in Application/config/database.php
+
+Login system not yet included.
