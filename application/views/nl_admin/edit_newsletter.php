@@ -2,7 +2,7 @@
 
 
 <!-- include summernote css/js -->
-<link href="<?=base_url('assets/css/summernote/summernote.css')?>" rel="stylesheet">
+<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.css" rel="stylesheet">
 <!-- select2 -->
     <link href="<?=base_url('assets/css/select/select2.min.css')?>" rel="stylesheet">
 
@@ -27,8 +27,8 @@
 
 			?>
 			<div class="form_wrapper form-lg">
-				<?php $form_attribute = array('class' => 'form-horizontal','method'=>'post','id'=>'draft_nl_form');
-				    echo form_open('newsletter/draft_newsletter', $form_attribute);
+				<?php $form_attribute = array('class' => 'form-horizontal','method'=>'post','id'=>'update_nl_form');
+				    echo form_open(base_url('newsletter/edit_newsletter'), $form_attribute);
 				?>
 						
 					
@@ -41,10 +41,22 @@
 					<div class="form-group">
 					  <label class="col-md-2 control-label" for="nl_group">Newsletter group</label>
 					  <div class="col-md-8">
-					  	<select id="nl_group" name="nl_group[]" class="form-control input-sm select2_multiple" >
+					  	<select id="nl_group" name="nl_group[]" class="form-control input-sm select2_multiple" multiple="multiple">
 					  		<?php
+					  		//get selected group
+					  		if (!empty($newsletters->nl_group)) {
+					  			$nl_group = $newsletters->nl_group;
+					  			
+					  		}
 					  		if (isset($newsletter_group) and $newsletter_group) {
 					  			foreach ($newsletter_group as $group) {
+					  				if(isset($nl_group)){
+					  					if ($nl_group==$group->gid) {
+					  						?>
+					  						<option value="<?=$group->gid?>" selected=""><?=$group->group_name?></option>
+					  						<?
+					  					}
+					  				}
 					  				?>
 					  				<option value="<?=$group->gid?>"><?=$group->group_name?></option>
 					  				<?php
@@ -61,9 +73,25 @@
 					<div class="form-group">
 					  <label class="col-md-2 control-label" for="emails">Email</label>
 					  <div class="col-md-8">
-					    
-					    <select multiple="" name="nl_email[]" class="select2_multiple_email form-control input-sm "></select>
-					    
+					  	<select multiple="" name="nl_email[]" class="select2_multiple_email form-control input-sm ">
+					  		
+					  	
+					  	<?php
+					  	$nl_email = explode(',', $newsletters->nl_email);
+					  	
+					  	if (!empty($nl_email) and count($nl_email)>0) {
+					  		foreach ($nl_email as $email) {
+					  			if(!empty($email)){
+						  		?>
+						  		<option value="<?=$email?>" selected=""><?=$email?></option>
+						  		<?php
+						  		}
+						  	}
+					  	}
+					  	
+					  	?>
+					  	</select>
+					   
 					  </div>
 					</div>
 
@@ -71,21 +99,19 @@
 					<div class="form-group">
 					  <label class="col-md-2 control-label" for="emails">Title</label>
 					  <div class="col-md-8">
-					    <input id="emails" name="nl_title" type="text" placeholder="Enter newsletter title" class="form-control input-sm">
+					    <input id="emails" name="nl_title" type="text" placeholder="Enter newsletter title" class="form-control input-sm" value="<?=$newsletters->title?>">
 					  </div>
 					</div>
 
 					<!-- Textarea -->
 					<div class="form-group">
 					  <label class="col-md-2 control-label" for="newsletter">Newsletter</label>
-					  <div class="col-md-10"><a href="load_newsletter" id="load_newsletter">Load newsletter template</a>
-					    <textarea id="summernote" name="nl_contents" class="form-control input-sm" style="overflow: hidden;"><?php 
-					    require_once(APPPATH.'views/template/nl_template02.php'); 
-					    ?> </textarea>
+					  <div class="col-md-10"><a href="#">Load newsletter template</a>
+					    <textarea id="summernote" name="nl_contents" class="form-control input-sm" style="overflow: hidden;"><?=$newsletters->nl_contents?></textarea>
 					    
 					  </div>
 					</div>
-
+					<input type="hidden" name="tracking_id" value="<?=$newsletters->tracking_no?>">
 					<!-- Button (Double) -->
 					<div class="form-group">
 					  <label class="col-md-3 control-label" for="cancel"></label>
@@ -97,9 +123,6 @@
 					</div>
 
 					</fieldset>
-					
-	
-						
 					
 						
 				<?php echo form_close(); ?>
@@ -118,8 +141,7 @@
 
 <?php      require_once(APPPATH.'views/template/footer.php'); ?>
 <script src="<?=base_url('assets/ajax/ajax_settings.js')?>"></script>
-
-<script src="<?=base_url('assets/js/plugins/summernote/summernote.js')?>"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() { 
 		//Summernote RTE Help : https://summernote.org/deep-dive
@@ -154,7 +176,7 @@
 
         $(".select2_multiple_email").select2({
             maximumSelectionLength: 5,
-            placeholder: "Type email - Maximum 5 email",
+            placeholder: "Select email",
             allowClear: true,
 
             ajax: {
@@ -193,16 +215,16 @@
 <script type="text/javascript">
 	
 
-	
+	//Move Newsletter to trash
 	$(document).ready(function(){
-		$('.form_wrapper').on('submit','#draft_nl_form',function(event){
-			event.preventDefault();
+		$('.form_wrapper').on('submit','#update_nl_form',function(event){
+			event.preventDefault(); 
 			var form_wrapper = $('.form_wrapper');
 			var frm_url = $(this).attr('action');
 			var frm_data = new FormData($(this)[0]);
 			var group_list = $('.nl_group').val();
 			var email_list = $('.nl_email').val();
-
+			$('.work_message').html('Please wait...');
 			
 			$.ajax({ 
 				type: 'post',
@@ -216,7 +238,7 @@
 					var json = $.parseJSON(return_msg);
 					
 					if (json.success) {
-						alert('Drafting success.');
+						alert('Update success.');
 						window.location.href= "./n_list/";
 					}else if (json.error){
 						alert(json.error);
@@ -235,21 +257,9 @@
 			});
 		});
 
-		//load newsletter
-
-		$('.form_wrapper').on('click','a#load_newsletter', function(e){
-			e.preventDefault();
-			alert('working');
-			
-		});
-
 		
 		
 	});
-	
-</script>
-
-<script type="text/javascript">
 	
 </script>
 
